@@ -11,13 +11,15 @@ public class WallFollowingLab {
 
   // Parameters: adjust these for desired performance
 
-  private static final int bandCenter = 20; // Offset from the wall (cm)
+  private static final int bandCenter = 33; // Offset from the wall (cm)
   private static final int bandWidth = 3; // Width of dead band (cm)
   private static final int motorLow = 100; // Speed of slower rotating wheel (deg/sec)
   private static final int motorHigh = 200; // Speed of the faster rotating wheel (deg/seec)
+  private static final int collisionDistance = 17; // closest allowed distance to wall before risking colission (cm)
 
 
-  private static final Port usPort = LocalEV3.get().getPort("S1");
+
+  private static final Port usPort = LocalEV3.get().getPort("S4");
   public static final EV3LargeRegulatedMotor leftMotor =
       new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
   public static final EV3LargeRegulatedMotor rightMotor =
@@ -35,9 +37,9 @@ public class WallFollowingLab {
     // Setup controller objects
 
     BangBangController bangbangController =
-        new BangBangController(bandCenter, bandWidth, motorLow, motorHigh);
+        new BangBangController(bandCenter, bandWidth, motorLow, motorHigh, collisionDistance,  leftMotor,  rightMotor);
 
-    PController pController = new PController(bandCenter, bandWidth);
+    PController pController = new PController( bandCenter, bandWidth, leftMotor, rightMotor);
 
     // Setup ultrasonic sensor
     // There are 4 steps involved:
