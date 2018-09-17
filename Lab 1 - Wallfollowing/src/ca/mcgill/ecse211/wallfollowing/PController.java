@@ -9,6 +9,9 @@ public class PController implements UltrasonicController {
 	private static final int FILTER_OUT = 25;
 	private  final int steadyProportion = 2; // for speed correction, larger gives a smaller correction i.e, steady correction
 	private final int rapidProportion = 1; // rapid correction proportion 
+	private final int maxSpeed = 80; // max speed correction
+	private final int correctionConstant = 4; // chosen because other numbers would be too large with the correction constants 2,1 and larger divisors would be messy
+
 
 	private final int bandCenter;
 	private final int bandWidth;
@@ -34,8 +37,6 @@ public class PController implements UltrasonicController {
 	@Override
 	public void processUSData(int distance) {
 		
-
-
 		// rudimentary filter - toss out invalid samples corresponding to null
 		// signal.
 		// (n.b. this was not included in the Bang-bang controller, but easily
@@ -66,7 +67,7 @@ public class PController implements UltrasonicController {
 		more slow pace. */
 		if (distError >= 55) {
 
-			steadySpeedCorrection = calcSpeed(steadyProportion, distError);
+			steadySpeedCorrection = calcSpeed(maxSpeed, steadyProportion, distError);
 
 			leftMotor.setSpeed(MOTOR_SPEED - steadySpeedCorrection);
 			rightMotor.setSpeed(MOTOR_SPEED + steadySpeedCorrection);
@@ -79,7 +80,7 @@ public class PController implements UltrasonicController {
 		/* here, we apply the same logic as previously but we want it to turn at a faster rate to avoid collision  */
 		else if (distError > 0 && distError < 55 ) {
 
-			rapidSpeedCorrection = calcSpeed(rapidProportion, distError);
+			rapidSpeedCorrection = calcSpeed(maxSpeed, rapidProportion, distError);
 
 			leftMotor.setSpeed(MOTOR_SPEED - rapidSpeedCorrection);
 			rightMotor.setSpeed(MOTOR_SPEED + rapidSpeedCorrection );
@@ -92,7 +93,7 @@ public class PController implements UltrasonicController {
 		/* in this case, we are  close to the wall, however, not too close,so we apply a steady correction */
 		else if (distError < 0 && distError > -10) {
 
-			steadySpeedCorrection = calcSpeed(steadyProportion, distError);
+			steadySpeedCorrection = calcSpeed(maxSpeed, steadyProportion, distError);
 
 			leftMotor.setSpeed(MOTOR_SPEED + steadySpeedCorrection);
 			rightMotor.setSpeed(MOTOR_SPEED - steadySpeedCorrection);
@@ -106,7 +107,7 @@ public class PController implements UltrasonicController {
 		  so it can turn in its place */
 		else if (distError <= -10) {
 
-			rapidSpeedCorrection = calcSpeed(rapidProportion, distError);
+			rapidSpeedCorrection = calcSpeed(maxSpeed, rapidProportion, distError);
 
 			leftMotor.setSpeed((MOTOR_SPEED + rapidSpeedCorrection));
 			rightMotor.setSpeed((MOTOR_SPEED - rapidSpeedCorrection));
@@ -117,9 +118,8 @@ public class PController implements UltrasonicController {
 		}
 		
 		/*
-		 appropriate distance so we let it continue forward at the designated speed
+		 appropriate distance so we let it continue forward at the designated MOTOR_SPEED
 		 */
-
 		else {
 
 			leftMotor.setSpeed(MOTOR_SPEED);
@@ -137,12 +137,9 @@ public class PController implements UltrasonicController {
 	 * @param distance distance - bandcenter
 	 */
 
-	int calcSpeed(int proportion, int distError) {
+	int calcSpeed(int maxSpeed, int proportion, int distError) {
 
 		int speedCorrection;
-		int maxSpeed = 80;
-		int correctionConstant = 4; // chosen because other numbers would be too large with the correction constants 2,1 and larger divisors would be messy
-
 		int turnSpeed = correctionConstant / proportion; // decides how fast/slow you will turn
 
 		
@@ -151,7 +148,6 @@ public class PController implements UltrasonicController {
 
 		if (speedCorrection >= maxSpeed) {
 			speedCorrection = maxSpeed;
-
 		}
 
 		return speedCorrection;

@@ -8,7 +8,7 @@ public class BangBangController implements UltrasonicController {
 	private final int bandwidth;
 	private final int motorLow;
 	private final int motorHigh;
-	private final int bangBangConstant = 5;
+	private final int bangBangConstant = 8;
 	private final int collisionDistance;
 	private int distance;
 	private final int FILTER_OUT = 25;
@@ -61,7 +61,7 @@ public class BangBangController implements UltrasonicController {
 
 		// too close to the wall but not as close as collisionDistance, we want it to turn
 		// right, so we slow down the right motor
-		else if (this.distance < bandCenter + bangBangConstant + - bandwidth) {
+		else if (this.distance < bandCenter + bangBangConstant - bandwidth) {
 			leftMotor.setSpeed(motorHigh);
 			rightMotor.setSpeed(motorLow);
 
