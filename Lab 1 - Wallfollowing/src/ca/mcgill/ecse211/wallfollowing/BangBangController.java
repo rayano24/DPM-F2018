@@ -52,7 +52,7 @@ public class BangBangController implements UltrasonicController {
 
 		// if we are TOO close to the wall, we want the robot to turn right in place and
 		// readjust path so we set the right motor to backwards
-		if (this.distance < collisionDistance) {
+		if (this.distance <= collisionDistance) {
 			leftMotor.setSpeed(motorLow);
 			rightMotor.setSpeed(motorHigh);
 
@@ -60,7 +60,7 @@ public class BangBangController implements UltrasonicController {
 			rightMotor.backward();
 		}
 
-		// too close to wall but not as close as collisionDistance, we want it to turn
+		// too close to the wall but not as close as collisionDistance, we want it to turn
 		// right, so we slow down the right motor
 		else if (this.distance < bandCenter - bandwidth) {
 			leftMotor.setSpeed(motorHigh);

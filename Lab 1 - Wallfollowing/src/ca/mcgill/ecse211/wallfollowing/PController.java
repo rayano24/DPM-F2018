@@ -50,7 +50,7 @@ public class PController implements UltrasonicController {
 			// there: leave the distance alone
 			this.distance = distance;
 		} else {
-			// distance went below 255: reset filter and leave
+			// distance went below 100: reset filter and leave
 			// distance alone.
 			filterControl = 0;
 			this.distance = distance;
@@ -141,7 +141,7 @@ public class PController implements UltrasonicController {
 
 		int speedCorrection;
 		int maxSpeed = 80;
-		int correctionConstant = 4;
+		int correctionConstant = 4; // chosen because other numbers would be too large with the correction constants 2,1 and larger divisors would be messy
 
 		int turnSpeed = correctionConstant / proportion; // decides how fast/slow you will turn
 
