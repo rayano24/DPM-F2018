@@ -8,6 +8,7 @@ public class BangBangController implements UltrasonicController {
 	private final int bandwidth;
 	private final int motorLow;
 	private final int motorHigh;
+	private final int bangBangConstant = 5;
 	private final int collisionDistance;
 	private int distance;
 	private final int FILTER_OUT = 25;
@@ -33,8 +34,6 @@ public class BangBangController implements UltrasonicController {
 	@Override
 	public void processUSData(int distance) {
 		this.distance = distance;
-		// TODO: process a movement based on the us distance passed in (BANG-BANG style)
-
 		if (distance >= 255 && filterControl < FILTER_OUT) {
 			// bad value, do not set the distance var, however do increment the
 			// filter value
@@ -52,9 +51,9 @@ public class BangBangController implements UltrasonicController {
 
 		// if we are TOO close to the wall, we want the robot to turn right in place and
 		// readjust path so we set the right motor to backwards
-		if (this.distance <= collisionDistance) {
+		if (this.distance < collisionDistance) {
 			leftMotor.setSpeed(motorLow);
-			rightMotor.setSpeed(motorHigh);
+			rightMotor.setSpeed(motorLow);
 
 			leftMotor.forward();
 			rightMotor.backward();
@@ -62,7 +61,7 @@ public class BangBangController implements UltrasonicController {
 
 		// too close to the wall but not as close as collisionDistance, we want it to turn
 		// right, so we slow down the right motor
-		else if (this.distance < bandCenter - bandwidth) {
+		else if (this.distance < bandCenter + bangBangConstant + - bandwidth) {
 			leftMotor.setSpeed(motorHigh);
 			rightMotor.setSpeed(motorLow);
 
@@ -71,21 +70,22 @@ public class BangBangController implements UltrasonicController {
 
 		}
 
-		// If it is too wall, we want it to turn left to become closer so we slow down
+		// If it is too far from the wall, we want it to turn left to become closer so we slow down
 		// the left motor
-		else if (this.distance > bandCenter + bandwidth) {
+		else if (this.distance > bandCenter + bandwidth + bangBangConstant) {
 			leftMotor.setSpeed(motorLow);
 			rightMotor.setSpeed(motorHigh);
 
 			leftMotor.forward();
 			rightMotor.forward();
 		}
+		
 
 		// if it is the right distance from the wall, we just want both motors working
 		// at the same power
 		else {
 			leftMotor.setSpeed(motorHigh);
-			rightMotor.setSpeed(motorLow);
+			rightMotor.setSpeed(motorHigh);
 
 			leftMotor.forward();
 			rightMotor.forward();
