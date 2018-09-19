@@ -8,14 +8,14 @@ public class BangBangController implements UltrasonicController {
 	private final int bandwidth;
 	private final int motorLow;
 	private final int motorHigh;
-	private final int bangBangConstant = 8;
 	private final int collisionDistance;
+	private final int bangBangConstant;
 	private int distance;
 	private final int FILTER_OUT = 25;
 	private int filterControl = 0;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 
-	public BangBangController(int bandCenter, int bandwidth, int motorLow, int motorHigh, int collisionDistance,
+	public BangBangController(int bandCenter, int bandwidth, int motorLow, int motorHigh, int collisionDistance, int bangBangConstant, 
 			EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor) {
 		// Default Constructor
 		this.bandCenter = bandCenter;
@@ -25,6 +25,7 @@ public class BangBangController implements UltrasonicController {
 		this.collisionDistance = collisionDistance;
 		this.leftMotor = leftMotor;
 		this.rightMotor = rightMotor;
+		this.bangBangConstant = bangBangConstant;
 		leftMotor.setSpeed(motorHigh); // Start robot moving forward
 		rightMotor.setSpeed(motorHigh);
 		leftMotor.forward();
@@ -34,11 +35,11 @@ public class BangBangController implements UltrasonicController {
 	@Override
 	public void processUSData(int distance) {
 		this.distance = distance;
-		if (distance >= 255 && filterControl < FILTER_OUT) {
+		if (distance >= 175 && filterControl  < FILTER_OUT) {
 			// bad value, do not set the distance var, however do increment the
 			// filter value
 			filterControl++;
-		} else if (distance >= 255) {
+		} else if (distance >= 175) {
 			// We have repeated large values, so there must actually be nothing
 			// there: leave the distance alone
 			this.distance = distance;
@@ -52,7 +53,7 @@ public class BangBangController implements UltrasonicController {
 		// if we are TOO close to the wall, we want the robot to turn right in place and
 		// readjust path so we set the right motor to backwards
 		if (this.distance < collisionDistance) {
-			leftMotor.setSpeed(motorLow);
+			leftMotor.setSpeed(motorHigh);
 			rightMotor.setSpeed(motorLow);
 
 			leftMotor.forward();
@@ -72,7 +73,7 @@ public class BangBangController implements UltrasonicController {
 
 		// If it is too far from the wall, we want it to turn left to become closer so we slow down
 		// the left motor
-		else if (this.distance > bandCenter + bandwidth + bangBangConstant) {
+		else if (this.distance > (bandCenter + bandwidth + bangBangConstant)) {
 			leftMotor.setSpeed(motorLow);
 			rightMotor.setSpeed(motorHigh);
 
