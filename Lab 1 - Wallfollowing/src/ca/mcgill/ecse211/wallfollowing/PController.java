@@ -13,6 +13,8 @@ public class PController implements UltrasonicController {
 	private final int correctionConstant = 4; // chosen because other numbers would be too large with the correction constants 2,1 and larger divisors would be messy
 
 
+	
+	private final int longDistance;
 	private final int bandCenter;
 	private final int bandWidth;
 	private int distance;
@@ -22,12 +24,13 @@ public class PController implements UltrasonicController {
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 
 	public PController(int bandCenter, int bandwidth, EV3LargeRegulatedMotor leftMotor,
-			EV3LargeRegulatedMotor rightMotor) {
+			EV3LargeRegulatedMotor rightMotor, int longDistance) {
 		this.bandCenter = bandCenter;
 		this.bandWidth = bandwidth;
 		this.filterControl = 0;
 		this.leftMotor = leftMotor;
 		this.rightMotor = rightMotor;
+		this.longDistance = longDistance;
 		leftMotor.setSpeed(MOTOR_SPEED); // Initalize motor rolling forward
 		rightMotor.setSpeed(MOTOR_SPEED);
 		leftMotor.forward();
@@ -65,7 +68,7 @@ public class PController implements UltrasonicController {
 		/* If we're too far from the wall, we want to decrease the left motor speed to
 		 make it turn left. Since it's very far, we will also want it to turn at a
 		more slow pace. */
-		if (distError >= 55) {
+		if (distError >= longDistance) {
 
 			steadySpeedCorrection = calcSpeed(maxSpeed, steadyProportion, distError);
 
@@ -78,7 +81,7 @@ public class PController implements UltrasonicController {
 		}
 
 		/* here, we apply the same logic as previously but we want it to turn at a faster rate to avoid collision  */
-		else if (distError > 0 && distError < 55 ) {
+		else if (distError > 0 && distError < longDistance ) {
 
 			rapidSpeedCorrection = calcSpeed(maxSpeed, rapidProportion, distError);
 

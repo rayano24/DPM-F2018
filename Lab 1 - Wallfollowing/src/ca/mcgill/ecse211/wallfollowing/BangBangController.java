@@ -44,7 +44,7 @@ public class BangBangController implements UltrasonicController {
 			// there: leave the distance alone
 			this.distance = distance;
 		} else {
-			// distance went below 255: reset filter and leave
+			// distance went below 175: reset filter and leave
 			// distance alone.
 			filterControl = 0;
 			this.distance = distance;
