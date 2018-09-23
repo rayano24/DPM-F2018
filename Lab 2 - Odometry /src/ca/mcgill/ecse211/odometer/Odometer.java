@@ -20,6 +20,8 @@ public class Odometer extends OdometerData implements Runnable {
   // Motors and related variables
   private int leftMotorTachoCount;
   private int rightMotorTachoCount;
+  private int leftMotorTachoCountPrev;
+  private int rightMotorTachoCountPrev;
   private EV3LargeRegulatedMotor leftMotor;
   private EV3LargeRegulatedMotor rightMotor;
 
@@ -101,14 +103,40 @@ public class Odometer extends OdometerData implements Runnable {
 
     while (true) {
       updateStart = System.currentTimeMillis();
+      
+      double  distL, distR, theta, dTheta, deltaD, dX, dY;
 
       leftMotorTachoCount = leftMotor.getTachoCount();
       rightMotorTachoCount = rightMotor.getTachoCount();
-
-      // TODO Calculate new robot position based on tachometer counts
       
-      // TODO Update odometer values with new calculated values
-      odo.update(0.5, 1.8, 20.1);
+      
+		// Calculate distance traveled by the wheels (cm)
+      distL = WHEEL_RAD * Math.toRadians((leftMotorTachoCount - leftMotorTachoCountPrev));
+	  distR = WHEEL_RAD * Math.toRadians((rightMotorTachoCount - rightMotorTachoCountPrev));
+	  
+	  
+	  // Get current theta (degrees)
+	  theta = odo.getXYT()[2];
+	  
+	  
+		// Calculate delta theta (degrees)
+	  dTheta = Math.toDegrees((distL - distR)/TRACK);
+	  deltaD = (distL + distR) * 0.5;
+	  
+	  
+		// Calculate delta x and y (cm)
+ 	  
+	  dX = deltaD * Math.sin(Math.toRadians(theta + dTheta));
+	  dY = deltaD * Math.cos(Math.toRadians(theta + dTheta));
+	  
+	       
+      odo.update(dX, dY, dTheta);
+      
+      
+      // Set previous tacho counts
+      leftMotorTachoCountPrev = leftMotorTachoCount;
+      rightMotorTachoCountPrev = rightMotorTachoCount;
+      
 
       // this ensures that the odometer only runs once every period
       updateEnd = System.currentTimeMillis();
