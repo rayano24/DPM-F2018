@@ -11,7 +11,7 @@ import lejos.hardware.sensor.SensorMode;
 public class OdometryCorrection implements Runnable {
 	private static final double TILE_SIZE = 30.48;
 	private static final long CORRECTION_PERIOD = 10;
-	private static final double SENSOR_OFFSET = 2.5;
+	private static final double SENSOR_OFFSET = 2.45;
 	private final float brightnessTrigger = 0.14f;
 	private Odometer odometer;
 	private float[] colour = new float[sensorMode.sampleSize()];
