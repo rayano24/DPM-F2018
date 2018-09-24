@@ -115,19 +115,20 @@ public class Odometer extends OdometerData implements Runnable {
 	  distR = WHEEL_RAD * Math.toRadians((rightMotorTachoCount - rightMotorTachoCountPrev));
 	  
 	  
-	  // Get current theta (degrees)
-	  theta = odo.getXYT()[2];
 	  
 	  
 		// Calculate delta theta (degrees)
 	  dTheta = Math.toDegrees((distL - distR)/TRACK);
 	  deltaD = (distL + distR) * 0.5;
 	  
+	  // Get current theta (degrees)
+	  theta = Math.toRadians(odo.getXYT()[2] + dTheta);
+	  
 	  
 		// Calculate delta x and y (cm)
  	  
-	  dX = deltaD * Math.sin(Math.toRadians(theta + dTheta));
-	  dY = deltaD * Math.cos(Math.toRadians(theta + dTheta));
+	  dX = deltaD * Math.sin(theta);
+	  dY = deltaD * Math.cos(theta);
 	  
 	       
       odo.update(dX, dY, dTheta);
