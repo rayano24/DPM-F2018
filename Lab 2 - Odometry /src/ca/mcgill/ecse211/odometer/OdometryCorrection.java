@@ -11,14 +11,14 @@ import lejos.hardware.sensor.SensorMode;
 public class OdometryCorrection implements Runnable {
 	private static final double TILE_SIZE = 30.48;
 	private static final long CORRECTION_PERIOD = 10;
-	private static final double SENSOR_OFFSET = 2.45;
-	private final float brightnessTrigger = 0.14f;
+	private static final double SENSOR_OFFSET = 2.3;
+	private final float minBrightness = 0.13f; // selected as RGB(32,32,32)
 	private Odometer odometer;
-	private float[] colour = new float[sensorMode.sampleSize()];
 	private boolean crossedLine = false;
-
 	private static final EV3ColorSensor colorSensor = new EV3ColorSensor(LocalEV3.get().getPort("S1"));
-	private static final SensorMode sensorMode = colorSensor.getRGBMode();
+	private static final SensorMode rgbMode = colorSensor.getRGBMode();
+	private float[] colour = new float[rgbMode.sampleSize()];
+
 
 	/**
 	 * This is the default class constructor. An existing instance of the odometer
@@ -46,46 +46,38 @@ public class OdometryCorrection implements Runnable {
 		while (true) {
 			correctionStart = System.currentTimeMillis();
 
-			// TODO Trigger correction (When do I have information to correct?)
-			// TODO Calculate new (accurate) robot position
+			double x = odometer.getXYT()[0];
+			double y = odometer.getXYT()[1];
+			double theta = odometer.getXYT()[2];
+			
+			
 
-			// TODO Update odometer with new calculated (and more accurate) vales
-
-			// NEW
-			double[] xyt = odometer.getXYT();
-			double x = xyt[0];
-			double y = xyt[1];
-			double theta = xyt[2];
-
-			// NEW
-			sensorMode.fetchSample(colour, 0);
-			float red = colour[0];
-			float green = colour[1];
-			float blue = colour[2];
-			float brightness = red + green + blue;
+			rgbMode.fetchSample(colour, 0);
+			float brightness = colour[0] + colour[1] + colour[2];
 
 			if (crossedLine) {
-				if (!(brightness < brightnessTrigger)) {
+				// using RGB mode, if below the min brightness we determined, likely a black surface
+				if (brightness >= minBrightness) {
 					crossedLine = false;
 					Sound.beep();
 
 					// Determine general direction the robot is facing
 					boolean movingUp = theta < 45 || theta > 335;
-					boolean movingRight = Math.abs(theta - 270) < 45;
 					boolean movingDown = Math.abs(theta - 180) < 45;
 					boolean movingLeft = Math.abs(theta - 90) < 45;
+					boolean movingRight = Math.abs(theta - 270) < 45;
+
 					boolean movingVertically = movingUp || movingDown;
 					boolean movingHorizontally = movingRight || movingLeft;
 
 					double offset; // offset to account for distance between sensor and wheel center
 
 					if (movingVertically) {
-						// align to origin on first line
 						if (!yOriginSet) {
 							odometer.setY(-SENSOR_OFFSET);
 							yOriginSet = true;
 						} else {
-							// account for offset depending on direction
+							// direction affects offset 
 							if (movingUp) {
 								offset = -SENSOR_OFFSET;
 							} else {
@@ -97,16 +89,15 @@ public class OdometryCorrection implements Runnable {
 							odometer.setY(yRounded);
 						}
 					} else if (movingHorizontally) {
-						// align to origin on first line
 						if (!xOriginSet) {
 							odometer.setX(SENSOR_OFFSET);
 							xOriginSet = true;
 						} else {
-							// account for offset depending on direction
-							if (movingRight) {
-								offset = SENSOR_OFFSET;
-							} else {
+							// offset varies based on direction
+							if (movingLeft) {
 								offset = -SENSOR_OFFSET;
+							} else {
+								offset = SENSOR_OFFSET;
 							}
 
 							// round x position to nearest tile length (plus offset)
@@ -115,10 +106,10 @@ public class OdometryCorrection implements Runnable {
 						}
 					}
 				}
-			} else {
-				// Determine whether sensor detects black
-				crossedLine = brightness < brightnessTrigger;
-			}
+			} else 
+				// true if it detects black
+				crossedLine = brightness < minBrightness;
+			
 
 			// this ensure the odometry correction occurs only once every period
 			correctionEnd = System.currentTimeMillis();

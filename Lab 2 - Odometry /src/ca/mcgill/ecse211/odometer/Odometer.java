@@ -104,34 +104,33 @@ public class Odometer extends OdometerData implements Runnable {
     while (true) {
       updateStart = System.currentTimeMillis();
       
-      double  distL, distR, theta, dTheta, deltaD, dX, dY;
+      double  distL, distR, theta, deltaT, deltaD, dX, dY;
 
       leftMotorTachoCount = leftMotor.getTachoCount();
       rightMotorTachoCount = rightMotor.getTachoCount();
       
       
-		// Calculate distance traveled by the wheels (cm)
-      distL = WHEEL_RAD * Math.toRadians((leftMotorTachoCount - leftMotorTachoCountPrev));
-	  distR = WHEEL_RAD * Math.toRadians((rightMotorTachoCount - rightMotorTachoCountPrev));
+		// Calculate wheel displacement (cm)
+	  distL = WHEEL_RAD * Math.PI * (leftMotorTachoCount - leftMotorTachoCountPrev)/180;
+	  distR = WHEEL_RAD * Math.PI * (rightMotorTachoCount - rightMotorTachoCountPrev)/180;
+
 	  
 	  
 	  
-	  
-		// Calculate delta theta (degrees)
-	  dTheta = Math.toDegrees((distL - distR)/TRACK);
-	  deltaD = (distL + distR) * 0.5;
+		// Calculate delta theta (degrees) as well as the displacement 
+	  deltaT = (distL - distR)/TRACK;
+	  deltaD = (distL + distR) * 0.50;
 	  
 	  // Get current theta (degrees)
-	  theta = Math.toRadians(odo.getXYT()[2] + dTheta);
+	  theta = odo.getXYT()[2] + deltaT;
 	  
 	  
-		// Calculate delta x and y (cm)
- 	  
+	  // Calculate delta x and y (cm)
 	  dX = deltaD * Math.sin(theta);
 	  dY = deltaD * Math.cos(theta);
 	  
 	       
-      odo.update(dX, dY, dTheta);
+      odo.update(dX, dY, deltaT);
       
       
       // Set previous tacho counts
