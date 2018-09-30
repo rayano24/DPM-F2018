@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="Lab 1 - Wallfollowing/src"/>
+	<classpathentry kind="src" path="Lab 2 - Odometry /src"/>
+	<classpathentry kind="lib" path="Lab 1 - Wallfollowing/WallFollowingLab.jar"/>
+	<classpathentry kind="lib" path="Lab 2 - Odometry /Lab2.jar"/>
+	<classpathentry kind="output" path="Lab 1 - Wallfollowing/bin"/>
+</classpath>
