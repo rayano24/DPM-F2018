@@ -14,7 +14,7 @@ public class OdometryCorrection implements Runnable {
 	private static final double SENSOR_OFFSET = 0.5;
 	private int yOffset = 4;
 	private Odometer odometer;
-	private static final EV3ColorSensor colorSensor = new EV3ColorSensor(LocalEV3.get().getPort("S1"));
+	private static final EV3ColorSensor colorSensor = new EV3ColorSensor(LocalEV3.get().getPort("S3"));
 	private static final SensorMode redMode = colorSensor.getRedMode(); // measure intensity of reflected light
 	private float[] colour = new float[redMode.sampleSize()];
 

@@ -1,3 +1,6 @@
+
+package ca.mcgill.ecse211.odometer;
+
 /**
  * This class is meant as a skeleton for the odometer class to be used.
  * 
@@ -7,8 +10,6 @@
  * @author Karim El-Baba
  * @author Michael Smith
  */
-
-package ca.mcgill.ecse211.odometer;
 
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
@@ -125,7 +126,7 @@ public class Odometer extends OdometerData implements Runnable {
 			dX = deltaD * Math.sin(theta);
 			dY = deltaD * Math.cos(theta);
 
-			// update odometer
+			// update odometer 
 			odo.update(dX, dY, deltaT);
 
 			// Set previous tacho counts
